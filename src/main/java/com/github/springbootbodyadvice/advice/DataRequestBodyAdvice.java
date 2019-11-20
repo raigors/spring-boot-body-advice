@@ -45,7 +45,9 @@ public class DataRequestBodyAdvice implements RequestBodyAdvice {
 
     @NotNull
     @Override
-    public HttpInputMessage beforeBodyRead(@NotNull HttpInputMessage inputMessage, MethodParameter parameter, Type targetType,
+    public HttpInputMessage beforeBodyRead(@NotNull HttpInputMessage inputMessage,
+                                           @NotNull MethodParameter parameter,
+                                           @NotNull Type targetType,
                                            @NotNull Class<? extends HttpMessageConverter<?>> converterType) throws IOException {
         String result = IOUtils.toString(inputMessage.getBody(), StandardCharsets.UTF_8);
         // 在这里解密(整个body数据被加密了在这里解密)
@@ -93,7 +95,7 @@ public class DataRequestBodyAdvice implements RequestBodyAdvice {
 
         @NotNull
         @Override
-        public InputStream getBody() throws IOException {
+        public InputStream getBody() {
             assert body != null;
             return body;
         }
