@@ -50,7 +50,7 @@ public class DataRequestControllerTest {
     public void getData1() {
         mockMvc.perform(MockMvcRequestBuilders.post("/data1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(getDataDTO())))
+                .content(objectMapper.writeValueAsString(getDataDTO(true))))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn()
@@ -63,7 +63,7 @@ public class DataRequestControllerTest {
     public void getData2() {
         mockMvc.perform(MockMvcRequestBuilders.post("/data2")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(getDataDTO()))
+                .content(getDataDTO(false)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn()
@@ -76,14 +76,17 @@ public class DataRequestControllerTest {
      *
      * @return String
      */
+    @Contract("_ -> new")
     @NotNull
-    @Contract(" -> new")
     @SneakyThrows(JsonProcessingException.class)
-    private String getDataDTO() {
+    private String getDataDTO(boolean flag) {
         DataDTO dataDTO = new DataDTO();
         dataDTO.setData("123456");
         String data = objectMapper.writeValueAsString(dataDTO);
-        return new String(Base64.encodeBase64(data.getBytes(), true));
+        if (flag) {
+            return new String(Base64.encodeBase64(data.getBytes(), true));
+        }
+        return data;
     }
 
 }

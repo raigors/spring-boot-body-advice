@@ -7,7 +7,6 @@ import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.MethodParameter;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -41,7 +40,7 @@ public class DataRequestBodyAdvice implements RequestBodyAdvice {
     public boolean supports(@NotNull MethodParameter methodParameter,
                             @NotNull Type targetType,
                             @NotNull Class<? extends HttpMessageConverter<?>> converterType) {
-        return AnnotationUtils.findAnnotation(targetType.getClass(), Encrypt.class) == null;
+        return methodParameter.hasMethodAnnotation(Encrypt.class);
     }
 
     @NotNull
