@@ -23,7 +23,7 @@ public class DataResponseController {
     @Encrypt
     @GetMapping("/data1")
     public DataVO getData1() {
-        return DataVO.builder().data(new Date().toString()).build();
+        return DataVO.builder().data("567890").build();
     }
 
     @GetMapping("/data2")

@@ -2,12 +2,12 @@ package com.github.springbootbodyadvice.controller;
 
 
 import lombok.SneakyThrows;
+import org.apache.commons.codec.binary.Base64;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -15,7 +15,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import javax.annotation.Resource;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -43,16 +42,15 @@ public class DataResponseControllerTest {
     @Test
     @SneakyThrows(Exception.class)
     public void getData1() {
-        mockMvc.perform(MockMvcRequestBuilders.get("/data1"))
+        String result = mockMvc.perform(MockMvcRequestBuilders.get("/data1"))
                 .andDo(print())
                 .andExpect(status().isOk())
 //                .andExpect(jsonPath("$.status").value(0))
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
+        decode(result);
     }
-
-
 
     @Test
     @SneakyThrows(Exception.class)
@@ -64,6 +62,11 @@ public class DataResponseControllerTest {
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
+    }
+
+    private void decode(String result) {
+        String decode = new String(new Base64().decode(result));
+        System.out.println(decode);
     }
 
 }

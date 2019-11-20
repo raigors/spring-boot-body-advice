@@ -1,8 +1,12 @@
 package com.github.springbootbodyadvice.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.springbootbodyadvice.pojo.DataDTO;
 import lombok.SneakyThrows;
+import org.apache.commons.codec.binary.Base64;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -14,7 +18,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import javax.annotation.Resource;
-import java.util.Date;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -60,7 +63,7 @@ public class DataRequestControllerTest {
     public void getData2() {
         mockMvc.perform(MockMvcRequestBuilders.post("/data2")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(getDataDTO())))
+                .content(getDataDTO()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn()
@@ -68,10 +71,19 @@ public class DataRequestControllerTest {
                 .getContentAsString();
     }
 
-    private DataDTO getDataDTO() {
+    /**
+     * 对整个数据进行 Base64 加密
+     *
+     * @return String
+     */
+    @NotNull
+    @Contract(" -> new")
+    @SneakyThrows(JsonProcessingException.class)
+    private String getDataDTO() {
         DataDTO dataDTO = new DataDTO();
-        dataDTO.setData(new Date().toString());
-        return dataDTO;
+        dataDTO.setData("123456");
+        String data = objectMapper.writeValueAsString(dataDTO);
+        return new String(Base64.encodeBase64(data.getBytes(), true));
     }
 
 }

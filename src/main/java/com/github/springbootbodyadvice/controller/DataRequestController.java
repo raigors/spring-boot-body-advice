@@ -1,8 +1,10 @@
 package com.github.springbootbodyadvice.controller;
 
+import com.github.springbootbodyadvice.annotation.Encrypt;
 import com.github.springbootbodyadvice.pojo.DataDTO;
 import com.github.springbootbodyadvice.pojo.DataVO;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,13 +25,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class DataRequestController {
 
     @PostMapping("/data1")
-    public DataVO getData1(@RequestBody DataDTO dataDTO) {
+    public DataVO getData1(@Encrypt @NotNull @RequestBody DataDTO dataDTO) {
         log.info("dataDTO.toString()");
         return DataVO.builder().data(dataDTO.toString()).build();
     }
 
     @PostMapping("/data2")
-    public DataVO getData2(@RequestBody DataDTO dataDTO) {
+    public DataVO getData2(@NotNull @RequestBody DataDTO dataDTO) {
         return DataVO.builder().data(dataDTO.toString()).build();
     }
 

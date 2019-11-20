@@ -1,8 +1,11 @@
 package com.github.springbootbodyadvice.advice;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.springbootbodyadvice.annotation.Encrypt;
-import com.github.springbootbodyadvice.pojo.DataVO;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Base64;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
@@ -11,6 +14,8 @@ import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
+
+import javax.annotation.Resource;
 
 /**
  * <p>
@@ -25,16 +30,27 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 @Slf4j
 @RestControllerAdvice
-public class DataResponseBodyAdvice implements ResponseBodyAdvice<DataVO> {
+public class DataResponseBodyAdvice implements ResponseBodyAdvice<Object> {
+
+    @Resource
+    private ObjectMapper objectMapper;
 
     @Override
-    public boolean supports(@NotNull MethodParameter methodParameter, Class aClass) {
-        return methodParameter.hasMethodAnnotation(Encrypt.class);
+    public boolean supports(@NotNull MethodParameter returnType,
+                            @NotNull Class<? extends HttpMessageConverter<?>> converterType) {
+        return returnType.hasMethodAnnotation(Encrypt.class);
     }
 
+    @SneakyThrows(JsonProcessingException.class)
     @Override
-    public DataVO beforeBodyWrite(@NotNull DataVO body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
-        body.setData("Encrypt----" + body.getData());
-        return body;
+    public Object beforeBodyWrite(Object body,
+                                  @NotNull MethodParameter returnType,
+                                  @NotNull MediaType selectedContentType,
+                                  @NotNull Class<? extends HttpMessageConverter<?>> selectedConverterType,
+                                  @NotNull ServerHttpRequest request,
+                                  @NotNull ServerHttpResponse response) {
+        // 这里进行 Base64 加密
+        return new String(Base64.encodeBase64(objectMapper.writeValueAsString(body).getBytes(), true));
     }
+
 }
