@@ -1,5 +1,6 @@
 package com.github.springbootbodyadvice.advice;
 
+import com.github.springbootbodyadvice.annotation.Decrypt;
 import com.github.springbootbodyadvice.annotation.Encrypt;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
@@ -40,7 +41,7 @@ public class DataRequestBodyAdvice implements RequestBodyAdvice {
     public boolean supports(@NotNull MethodParameter methodParameter,
                             @NotNull Type targetType,
                             @NotNull Class<? extends HttpMessageConverter<?>> converterType) {
-        return methodParameter.hasMethodAnnotation(Encrypt.class);
+        return methodParameter.hasMethodAnnotation(Decrypt.class);
     }
 
     @NotNull
