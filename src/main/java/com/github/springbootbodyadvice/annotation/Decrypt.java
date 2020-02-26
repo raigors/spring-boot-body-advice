@@ -19,7 +19,7 @@ import java.lang.annotation.Target;
  * @since 0.0.1
  */
 
-@Target({ElementType.PARAMETER, ElementType.METHOD})
+@Target({ElementType.PARAMETER, ElementType.METHOD, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Decrypt {

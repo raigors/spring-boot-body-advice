@@ -1,5 +1,6 @@
 package com.github.springbootbodyadvice.pojo;
 
+import com.github.springbootbodyadvice.annotation.Decrypt;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,5 +27,6 @@ import lombok.ToString;
 @AllArgsConstructor
 public class DataDTO {
 
+    @Decrypt
     private String data;
 }

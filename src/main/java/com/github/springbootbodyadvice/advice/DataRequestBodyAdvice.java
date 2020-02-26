@@ -1,12 +1,14 @@
 package com.github.springbootbodyadvice.advice;
 
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.springbootbodyadvice.annotation.Decrypt;
-import com.github.springbootbodyadvice.annotation.Encrypt;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.joor.Reflect;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
@@ -17,6 +19,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdvice;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 
@@ -37,11 +40,21 @@ public class DataRequestBodyAdvice implements RequestBodyAdvice {
 
     private static final Base64 BASE64 = new Base64();
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     @Override
     public boolean supports(@NotNull MethodParameter methodParameter,
                             @NotNull Type targetType,
                             @NotNull Class<? extends HttpMessageConverter<?>> converterType) {
-        return methodParameter.hasMethodAnnotation(Decrypt.class);
+        if (methodParameter.hasParameterAnnotation(Decrypt.class)) {
+            return true;
+        }
+        for (Field field : methodParameter.getParameterType().getDeclaredFields()) {
+            if (field.isAnnotationPresent(Decrypt.class)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @NotNull
@@ -51,9 +64,21 @@ public class DataRequestBodyAdvice implements RequestBodyAdvice {
                                            @NotNull Type targetType,
                                            @NotNull Class<? extends HttpMessageConverter<?>> converterType) throws IOException {
         String result = IOUtils.toString(inputMessage.getBody(), StandardCharsets.UTF_8);
-        // 在这里解密(整个body数据被加密了在这里解密)
-        result = new String(BASE64.decode(result));
-        InputStream targetStream = IOUtils.toInputStream(result, StandardCharsets.UTF_8.name());
+        if (parameter.hasParameterAnnotation(Decrypt.class)) {
+            // 在这里解密(整个body数据被加密了在这里解密)
+            result = new String(BASE64.decode(result));
+            InputStream targetStream = IOUtils.toInputStream(result, StandardCharsets.UTF_8.name());
+            log.info("beforeBodyRead:{}", result);
+            return new DecodeHttpInputMessage(inputMessage.getHeaders(), targetStream);
+        }
+        Object object = OBJECT_MAPPER.readValue(result, parameter.getParameterType());
+        for (Field field : parameter.getParameter().getType().getDeclaredFields()) {
+            if (field.isAnnotationPresent(Decrypt.class)) {
+                String fieldName = field.getName();
+                Reflect.on(object).set(field.getName(),new String(BASE64.decode(Reflect.on(object).get(fieldName).toString())));
+            }
+        }
+        InputStream targetStream = IOUtils.toInputStream(OBJECT_MAPPER.writeValueAsString(object), StandardCharsets.UTF_8.name());
         log.info("beforeBodyRead:{}", result);
         return new DecodeHttpInputMessage(inputMessage.getHeaders(), targetStream);
     }

@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * <p>
  * 创建时间为 下午10:09 2019/11/4
@@ -25,13 +27,20 @@ import org.springframework.web.bind.annotation.RestController;
 public class DataRequestController {
 
     @PostMapping("/data1")
-    public DataVO getData1(@Decrypt @NotNull @RequestBody DataDTO dataDTO) {
+    public DataVO getData1(HttpServletRequest servletRequest, @Decrypt @NotNull @RequestBody DataDTO dataDTO) {
         log.info("dataDTO.toString()");
         return DataVO.builder().data(dataDTO.toString()).build();
     }
 
     @PostMapping("/data2")
-    public DataVO getData2(@NotNull @RequestBody DataDTO dataDTO) {
+    public DataVO getData2(HttpServletRequest servletRequest, @NotNull @RequestBody DataDTO dataDTO) {
+        log.info("dataDTO.toString()");
+        return DataVO.builder().data(dataDTO.toString()).build();
+    }
+
+
+    @PostMapping("/data3")
+    public DataVO getData3(@NotNull @RequestBody DataDTO dataDTO) {
         int a = 1 / 0;
         return DataVO.builder().data(dataDTO.toString()).build();
     }

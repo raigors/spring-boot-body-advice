@@ -50,7 +50,21 @@ public class DataRequestControllerTest {
     public void getData1() {
         mockMvc.perform(MockMvcRequestBuilders.post("/data1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(getDataDTO(true))))
+                .content(objectMapper.writeValueAsString(getDataDTO2(true))))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+    }
+
+
+    @Test
+    @SneakyThrows(Exception.class)
+    public void getData2() {
+        mockMvc.perform(MockMvcRequestBuilders.post("/data2")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(getDataDTO1())))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn()
@@ -60,15 +74,29 @@ public class DataRequestControllerTest {
 
     @Test
     @SneakyThrows(Exception.class)
-    public void getData2() {
-        mockMvc.perform(MockMvcRequestBuilders.post("/data2")
+    public void getData3() {
+        mockMvc.perform(MockMvcRequestBuilders.post("/data3")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(getDataDTO(false)))
+                .content(getDataDTO2(false)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
+    }
+
+
+    /**
+     * 对整个数据进行 Base64 加密
+     *
+     * @return String
+     */
+    @NotNull
+    @SneakyThrows(JsonProcessingException.class)
+    private String getDataDTO1() {
+        DataDTO dataDTO = new DataDTO();
+        dataDTO.setData(new String(Base64.encodeBase64("azqwsx".getBytes(), true)));
+        return objectMapper.writeValueAsString(dataDTO);
     }
 
     /**
@@ -79,7 +107,7 @@ public class DataRequestControllerTest {
     @Contract("_ -> new")
     @NotNull
     @SneakyThrows(JsonProcessingException.class)
-    private String getDataDTO(boolean flag) {
+    private String getDataDTO2(boolean flag) {
         DataDTO dataDTO = new DataDTO();
         dataDTO.setData("123456");
         String data = objectMapper.writeValueAsString(dataDTO);
